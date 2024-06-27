@@ -29,27 +29,44 @@ RUN \
   echo "**** install runtime packages ****" && \
   apt-get update && \
   apt-get install -y \
-    jq \
-    udev \
-    wget && \
+  jq \
+  udev \
+  git \
+  cmake \
+  pkg-config \
+  meson \
+  libdrm-dev \
+  automake \
+  libtool \
+  pciutils \
+  vainfo \
+  intel-gpu-tools \
+  intel-media-va-driver-non-free \
+  wget && \
+  echo "**** install libva ****" && \
+  git clone https://github.com/intel/libva.git && \
+  cd libva && \
+  ./autogen.sh --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu && \
+  make && \
+  make install && \
   echo "**** install plex ****" && \
   if [ -z ${PLEX_RELEASE+x} ]; then \
-    PLEX_RELEASE=$(curl -sX GET 'https://plex.tv/api/downloads/5.json' \
-      | jq -r '.computer.Linux.version'); \
+  PLEX_RELEASE=$(curl -sX GET 'https://plex.tv/api/downloads/5.json' \
+  | jq -r '.computer.Linux.version'); \
   fi && \
   curl -o \
-    /tmp/plexmediaserver.deb -L \
-    "${PLEX_DOWNLOAD}/${PLEX_RELEASE}/debian/plexmediaserver_${PLEX_RELEASE}_${PLEX_ARCH}.deb" && \
+  /tmp/plexmediaserver.deb -L \
+  "${PLEX_DOWNLOAD}/${PLEX_RELEASE}/debian/plexmediaserver_${PLEX_RELEASE}_${PLEX_ARCH}.deb" && \
   dpkg -i /tmp/plexmediaserver.deb && \
   echo "**** ensure abc user's home folder is /app ****" && \
   usermod -d /app abc && \
   echo "**** cleanup ****" && \
   apt-get clean && \
   rm -rf \
-    /etc/default/plexmediaserver \
-    /tmp/* \
-    /var/lib/apt/lists/* \
-    /var/tmp/*
+  /etc/default/plexmediaserver \
+  /tmp/* \
+  /var/lib/apt/lists/* \
+  /var/tmp/*
 
 # add local files
 COPY root/ /
